@@ -1,85 +1,78 @@
-Sistema de Control de Calidad Automatizado para Chocolates
-Descripción
-Este proyecto implementa un sistema de control de calidad automatizado para una fábrica de chocolates utilizando principios de programación orientada a objetos (POO). El sistema simula la detección de defectos en diferentes etapas del proceso productivo (moldeado y empaque) mediante sensores virtuales.
+# Sistema de Control de Calidad Automatizado para Chocolates
 
-Características Principales
-🏗️ Arquitectura POO
-Encapsulamiento: Atributos protegidos y métodos getter para control de acceso
+## Descripción
+Este proyecto implementa un sistema de control de calidad automatizado para una fábrica de chocolates utilizando principios de programación orientada a objetos (POO).  
+El sistema simula la detección de defectos en diferentes etapas del proceso productivo (moldeado y empaque) mediante sensores virtuales.
 
-Herencia: Clases especializadas para diferentes tipos de chocolates
+---
 
-Polimorfismo: Métodos evaluar_calidad() con implementaciones específicas
+## Características Principales
 
-Abstracción: Clase abstracta SensorCalidad para definir interfaz común
+### 🏗️ Arquitectura POO
+- **Encapsulamiento**: Atributos protegidos y métodos getter para control de acceso  
+- **Herencia**: Clases especializadas para diferentes tipos de chocolates  
+- **Polimorfismo**: Métodos `evaluar_calidad()` con implementaciones específicas  
+- **Abstracción**: Clase abstracta `SensorCalidad` para definir interfaz común  
 
-🔍 Funcionalidades
-Detección automática de defectos en chocolates
+### 🔍 Funcionalidades
+- Detección automática de defectos en chocolates  
+- Evaluación de calidad según criterios específicos por proceso  
+- Generación de reportes estadísticos  
+- Registro detallado de inspecciones  
 
-Evaluación de calidad según criterios específicos por proceso
+---
 
-Generación de reportes estadísticos
+## Estructura del Proyecto
 
-Registro detallado de inspecciones
+### Clases Principales
+- **Chocolate (Clase Base)**  
+  Representa un chocolate con atributos básicos.  
+  Gestiona defectos y estado de calidad.  
+  Método base para evaluación de calidad.  
 
-Estructura del Proyecto
-Clases Principales
-Chocolate (Clase Base)
-Representa un chocolate con atributos básicos
+- **ChocolateMoldeado (Herencia)**  
+  Especialización para proceso de moldeado.  
+  Criterios específicos: burbujas, rotura, forma incorrecta.  
 
-Gestiona defectos y estado de calidad
+- **ChocolateEmpaque (Herencia)**  
+  Especialización para proceso de empaque.  
+  Criterios específicos: rotura, empaque dañado, pieza faltante.  
 
-Método base para evaluación de calidad
+- **SensorCalidad (Clase Abstracta)**  
+  Define interfaz para sensores de calidad.  
+  Método abstracto `detectar_defectos()`.  
 
-ChocolateMoldeado (Herencia)
-Especialización para proceso de moldeado
+- **SensorVisual (Implementación Concreta)**  
+  Simula detección de defectos mediante visión artificial.  
+  Lógica específica para moldeado y empaque.  
 
-Criterios específicos: burbujas, rotura, forma incorrecta
+- **SistemaControlCalidad**  
+  Gestiona el flujo completo de control de calidad.  
+  Registra sensores por proceso.  
+  Genera reportes estadísticos.  
 
-ChocolateEmpaque (Herencia)
-Especialización para proceso de empaque
+### Enumeraciones
+- **TipoDefecto**
+  - `BURBUJAS`: Burbujas de aire en el chocolate  
+  - `ROTURA`: Chocolate roto o quebrado  
+  - `FORMA_INCORRECTA`: Forma no conforme al molde  
+  - `MANCHAS`: Manchas o imperfecciones superficiales  
+  - `FALTANTE`: Pieza faltante en el empaque  
+  - `EMPAQUE_DANADO`: Empaque dañado o defectuoso  
 
-Criterios específicos: rotura, empaque dañado, pieza faltante
+- **EstadoCalidad**
+  - `APROBADO`: Cumple con los estándares de calidad  
+  - `RECHAZADO`: No cumple con los estándares  
+  - `PENDIENTE`: Esperando evaluación  
 
-SensorCalidad (Clase Abstracta)
-Define interfaz para sensores de calidad
+---
 
-Método abstracto detectar_defectos()
+## Instalación y Uso
 
-SensorVisual (Implementación Concreta)
-Simula detección de defectos mediante visión artificial
+### Requisitos
+- Python 3.7 o superior  
+- No se requieren dependencias externas  
 
-Lógica específica para moldeado y empaque
-
-SistemaControlCalidad
-Gestiona el flujo completo de control de calidad
-
-Registra sensores por proceso
-
-Genera reportes estadísticos
-
-Enumeraciones
-TipoDefecto
-BURBUJAS: Burbujas de aire en el chocolate
-
-ROTURA: Chocolate roto o quebrado
-
-FORMA_INCORRECTA: Forma no conforme al molde
-
-MANCHAS: Manchas o imperfecciones superficiales
-
-FALTANTE: Pieza faltante en el empaque
-
-EMPAQUE_DANADO: Empaque dañado o defectuoso
-
-EstadoCalidad
-APROBADO: Cumple con los estándares de calidad
-
-RECHAZADO: No cumple con los estándares
-
-PENDIENTE: Esperando evaluación
-
-Instalación y Uso
-Requisitos
-Python 3.7 o superior
-
-No se requieren dependencias externas
+### Ejecución
+```bash
+python sistema_calidad_chocolates.py
