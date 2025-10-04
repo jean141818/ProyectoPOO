@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 from typing import List, Dict, Optional
@@ -177,6 +177,9 @@ class SistemaControlCalidad:
     
     def generar_reporte(self) -> str:
         """Genera un reporte de calidad"""
+        if not self._resultados:
+            return "No hay datos de inspección para generar reporte."
+        
         total_inspecciones = len(self._resultados)
         aprobados = sum(1 for r in self._resultados if r['resultado'] == EstadoCalidad.APROBADO.value)
         tasa_aprobacion = (aprobados / total_inspecciones * 100) if total_inspecciones > 0 else 0
@@ -198,12 +201,78 @@ class SistemaControlCalidad:
             for defecto in resultado['defectos']:
                 contador_defectos[defecto] = contador_defectos.get(defecto, 0) + 1
         
-        for defecto, count in contador_defectos.items():
-            reporte += f"  - {defecto}: {count} ocurrencias\n"
+        if contador_defectos:
+            for defecto, count in contador_defectos.items():
+                reporte += f"  - {defecto}: {count} ocurrencias\n"
+        else:
+            reporte += "  No se detectaron defectos\n"
+        
+        return reporte
+    
+    def mostrar_inspecciones(self) -> str:
+        """Muestra el historial de inspecciones"""
+        if not self._resultados:
+            return "No hay inspecciones registradas."
+        
+        reporte = "HISTORIAL DE INSPECCIONES\n"
+        reporte += "=" * 50 + "\n"
+        
+        for i, resultado in enumerate(self._resultados, 1):
+            reporte += f"{i}. Lote: {resultado['lote_id']} | "
+            reporte += f"Proceso: {resultado['proceso']} | "
+            reporte += f"Resultado: {resultado['resultado']}\n"
+            if resultado['defectos']:
+                reporte += f"   Defectos: {', '.join(resultado['defectos'])}\n"
+            reporte += f"   Fecha: {resultado['fecha'].strftime('%Y-%m-%d %H:%M:%S')}\n"
+            reporte += "-" * 50 + "\n"
         
         return reporte
 
-# Ejemplo de uso del sistema
+# Función para mostrar el menú principal
+def mostrar_menu():
+    """Muestra el menú principal del sistema"""
+    print("\n" + "=" * 50)
+    print("    SISTEMA DE CONTROL DE CALIDAD - CHOCOLATES")
+    print("=" * 50)
+    print("1. Inspeccionar chocolate de moldeado")
+    print("2. Inspeccionar chocolate de empaque")
+    print("3. Proceso completo (moldeado + empaque)")
+    print("4. Generar reporte de calidad")
+    print("5. Mostrar historial de inspecciones")
+    print("6. Simular producción en lote")
+    print("7. Salir")
+    print("-" * 50)
+
+# Función para obtener entrada del usuario
+def obtener_opcion():
+    """Obtiene y valida la opción del usuario"""
+    try:
+        opcion = int(input("Seleccione una opción (1-7): "))
+        return opcion
+    except ValueError:
+        print("Error: Por favor ingrese un número válido.")
+        return -1
+
+# Función para simular producción en lote
+def simular_produccion_lote(sistema: SistemaControlCalidad, cantidad: int):
+    """Simula la producción y control de calidad de múltiples chocolates"""
+    print(f"\nSimulando producción de {cantidad} chocolates...")
+    
+    for i in range(cantidad):
+        # Crear chocolate para moldeado
+        chocolate_molde = ChocolateMoldeado(f"LOTE-M-{i+1}", datetime.now(), "corazon")
+        resultado_molde = sistema.inspeccionar_chocolate(chocolate_molde, "moldeado")
+        print(f"  Moldeado {chocolate_molde.lote_id}: {resultado_molde.value}")
+        
+        # Si pasa moldeado, proceder a empaque
+        if resultado_molde == EstadoCalidad.APROBADO:
+            chocolate_empaque = ChocolateEmpaque(f"LOTE-E-{i+1}", datetime.now(), "caja_regalo")
+            resultado_empaque = sistema.inspeccionar_chocolate(chocolate_empaque, "empaque")
+            print(f"  Empaque {chocolate_empaque.lote_id}: {resultado_empaque.value}")
+        else:
+            print(f"  ❌ Chocolate {chocolate_molde.lote_id} rechazado en moldeado")
+
+# Programa principal con menú interactivo
 def main():
     # Crear sistema de control de calidad
     sistema = SistemaControlCalidad()
@@ -213,21 +282,82 @@ def main():
     sistema.registrar_sensor("moldeado", sensor_visual)
     sistema.registrar_sensor("empaque", sensor_visual)
     
-    # Simular producción y control de calidad
-    for i in range(10):
-        # Crear chocolates para moldeado
-        chocolate_molde = ChocolateMoldeado(f"LOTE-M-{i+1}", datetime.now(), "corazon")
-        resultado_molde = sistema.inspeccionar_chocolate(chocolate_molde, "moldeado")
-        print(f"Moldeado {chocolate_molde.lote_id}: {resultado_molde.value}")
-        
-        # Si pasa moldeado, proceder a empaque
-        if resultado_molde == EstadoCalidad.APROBADO:
-            chocolate_empaque = ChocolateEmpaque(f"LOTE-E-{i+1}", datetime.now(), "caja_regalo")
-            resultado_empaque = sistema.inspeccionar_chocolate(chocolate_empaque, "empaque")
-            print(f"Empaque {chocolate_empaque.lote_id}: {resultado_empaque.value}")
+    print("Sistema de Control de Calidad Inicializado")
+    print("Sensores registrados: Moldeado y Empaque")
     
-    # Generar reporte final
-    print(sistema.generar_reporte())
+    while True:
+        mostrar_menu()
+        opcion = obtener_opcion()
+        
+        if opcion == 1:
+            # Inspeccionar chocolate de moldeado
+            lote_id = input("Ingrese ID del lote para moldeado: ")
+            chocolate = ChocolateMoldeado(lote_id, datetime.now(), "corazon")
+            resultado = sistema.inspeccionar_chocolate(chocolate, "moldeado")
+            print(f"\n✅ Resultado: {resultado.value}")
+            if chocolate.defectos:
+                print(f"❌ Defectos detectados: {[d.value for d in chocolate.defectos]}")
+        
+        elif opcion == 2:
+            # Inspeccionar chocolate de empaque
+            lote_id = input("Ingrese ID del lote para empaque: ")
+            chocolate = ChocolateEmpaque(lote_id, datetime.now(), "caja_regalo")
+            resultado = sistema.inspeccionar_chocolate(chocolate, "empaque")
+            print(f"\n✅ Resultado: {resultado.value}")
+            if chocolate.defectos:
+                print(f"❌ Defectos detectados: {[d.value for d in chocolate.defectos]}")
+        
+        elif opcion == 3:
+            # Proceso completo
+            lote_id = input("Ingrese ID del lote: ")
+            
+            # Moldeado
+            chocolate_molde = ChocolateMoldeado(f"{lote_id}-M", datetime.now(), "corazon")
+            resultado_molde = sistema.inspeccionar_chocolate(chocolate_molde, "moldeado")
+            print(f"\n🔧 Moldeado: {resultado_molde.value}")
+            
+            if resultado_molde == EstadoCalidad.APROBADO:
+                # Empaque
+                chocolate_empaque = ChocolateEmpaque(f"{lote_id}-E", datetime.now(), "caja_regalo")
+                resultado_empaque = sistema.inspeccionar_chocolate(chocolate_empaque, "empaque")
+                print(f"📦 Empaque: {resultado_empaque.value}")
+                
+                if resultado_empaque == EstadoCalidad.APROBADO:
+                    print("🎉 ¡Producto final APROBADO!")
+                else:
+                    print("❌ Producto rechazado en empaque")
+            else:
+                print("❌ Producto rechazado en moldeado")
+        
+        elif opcion == 4:
+            # Generar reporte
+            print(sistema.generar_reporte())
+        
+        elif opcion == 5:
+            # Mostrar historial
+            print(sistema.mostrar_inspecciones())
+        
+        elif opcion == 6:
+            # Simular producción en lote
+            try:
+                cantidad = int(input("Ingrese cantidad de chocolates a producir: "))
+                if cantidad > 0:
+                    simular_produccion_lote(sistema, cantidad)
+                    print(f"\n✅ Simulación completada: {cantidad} chocolates procesados")
+                else:
+                    print("❌ La cantidad debe ser mayor a 0")
+            except ValueError:
+                print("❌ Error: Ingrese un número válido")
+        
+        elif opcion == 7:
+            # Salir
+            print("\n¡Gracias por usar el Sistema de Control de Calidad!")
+            break
+        
+        else:
+            print("❌ Opción inválida. Por favor seleccione 1-7.")
+        
+        input("\nPresione Enter para continuar...")
 
 if __name__ == "__main__":
     main()
